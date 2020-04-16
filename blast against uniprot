@@ -1,0 +1,18 @@
+wget https://github.com/lh3/minimap2/releases/download/v2.17/minimap2-2.17_x64-linux.tar.gz
+
+gunzip minimap2-2.17_x64-linux.tar.bz2
+
+minimap2 -ax asm5 /proj/setaria_annotation/data/genome/SD.pilon_rnd3.fasta
+/proj/setaria_annotation/data/rnaseq/trinity_out_dir/Trinity.fasta > transcriptmapping.sam
+
+samtools fastq -n -f 4 transcriptmapping.sam - > unmapped.fastq
+sed -n '1~4s/^@/>/p;2~4p' unmapped.fastq > unmapped.fasta
+
+Wget ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz
+
+makeblastdb -in uniprot_sprot.fasta -input_type fasta -dbtype prot
+
+blastp -num_threads 8 -db uniprot_sprot.fasta -query unmapped.fasta -out blastresultunmapped2.txt 
+-evalue .000001 -show_gis -max_target_seqs 1 -outfmt “6 std stitle qcovs pident”
+
+                
